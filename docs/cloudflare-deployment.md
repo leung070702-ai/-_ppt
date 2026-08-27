@@ -72,7 +72,7 @@ git ls-files .env
 
    ```text
    Root directory: frontend
-   Framework preset: Next.js (Static HTML Export)
+   Framework preset: Next.js
    Build command: pnpm run build
    Build output directory: out
    Node.js version: 20
@@ -93,19 +93,14 @@ cd frontend
 corepack enable
 corepack prepare pnpm@9 --activate
 pnpm install --frozen-lockfile
-pnpm run build
 npx wrangler login
 npx wrangler pages project create <pages-project-name>
+$env:NEXT_PUBLIC_API_URL="https://<你的后端域名>"
+pnpm run build
 npx wrangler pages deploy out --project-name <pages-project-name>
 ```
 
-生产环境变量建议在 Cloudflare 控制台配置；若使用 Wrangler：
-
-```powershell
-npx wrangler pages secret put NEXT_PUBLIC_API_URL --project-name <pages-project-name>
-```
-
-注意：`NEXT_PUBLIC_*` 会在构建时写入浏览器 bundle。它只能放公开的后端 URL，不能放 API Key 或其他秘密。
+在 Cloudflare 控制台配置变量时，要在第一次构建前添加 `NEXT_PUBLIC_API_URL`，并分别检查 Production 和 Preview 环境。注意：`NEXT_PUBLIC_*` 会在构建时写入浏览器 bundle。它只能放公开的后端 URL，不能放 API Key 或其他秘密。
 
 ## 4. CORS 与域名
 
