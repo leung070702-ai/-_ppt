@@ -49,7 +49,8 @@ git ls-files .env
    ```text
    APP_ENV=production
    API_HOST=0.0.0.0
-   API_PORT=8000
+   API_PORT=10000
+   PORT=10000
    ALLOWED_ORIGINS=https://<你的-pages-域名>
    ```
 
@@ -71,7 +72,7 @@ git ls-files .env
 
    ```text
    Root directory: frontend
-   Framework preset: Next.js
+   Framework preset: Next.js (Static HTML Export)
    Build command: pnpm run build
    Build output directory: out
    Node.js version: 20
@@ -139,3 +140,4 @@ Invoke-WebRequest https://<你的后端域名>/health
 - 不要把当前 FastAPI/Python 服务直接当作 Workers 迁移；虽然 Workers 支持部分 FastAPI，但 `python-pptx` 和本地文件/SQLite 依赖仍需要先验证兼容性，并改造成 R2/D1 等 Cloudflare 存储绑定。
 - 不要把 `backend/data`、用户上传 PPTX 或 `.env` 提交到 GitHub。
 - 单实例后端是当前 MVP 的边界；需要高可用时，先增加对象存储、托管数据库和异步任务队列的独立里程碑。
+
