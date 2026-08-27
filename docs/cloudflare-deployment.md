@@ -2,7 +2,7 @@
 
 本项目目前由两个服务组成：
 
-- `frontend/`：Next.js 14 前端，适合部署到 Cloudflare Pages（静态/Node 兼容构建）。
+- `frontend/`：Next.js 14 前端，配置为静态导出，适合部署到 Cloudflare Pages。
 - `backend/`：FastAPI + `python-pptx` 后端，需要 Python 运行时和可持久化文件存储。Cloudflare Pages/Workers 不能直接运行这个 Python 服务，因此后端应先部署到支持 Python 的平台，再由前端通过环境变量访问。
 
 ## 推荐拓扑
@@ -13,7 +13,7 @@
                                              └─ PPTX 文件目录
 ```
 
-Cloudflare 负责前端托管、DNS、TLS 和可选的 WAF；后端可以先使用 Render、Railway、Fly.io 或自建 Docker 主机。MVP 的 SQLite 和本地文件目录只适合单实例部署；多实例生产环境需要单独引入对象存储和数据库里程碑。
+Cloudflare 负责前端托管、DNS、TLS 和可选的 WAF；后端可以先使用 Render、Railway、Fly.io 或自建 Docker 主机。Cloudflare Workers 目前支持部分 FastAPI/Python 应用，但本项目的 `python-pptx`、SQLite 和本地文件目录仍应先保持在 Python 容器中。MVP 的 SQLite 和本地文件目录只适合单实例部署；多实例生产环境需要单独引入对象存储和数据库里程碑。
 
 ## 1. 推送 GitHub
 
@@ -73,7 +73,7 @@ git ls-files .env
    Root directory: frontend
    Framework preset: Next.js
    Build command: pnpm run build
-   Build output directory: .next
+   Build output directory: out
    Node.js version: 20
    ```
 
@@ -95,7 +95,7 @@ pnpm install --frozen-lockfile
 pnpm run build
 npx wrangler login
 npx wrangler pages project create <pages-project-name>
-npx wrangler pages deploy .next --project-name <pages-project-name>
+npx wrangler pages deploy out --project-name <pages-project-name>
 ```
 
 生产环境变量建议在 Cloudflare 控制台配置；若使用 Wrangler：
@@ -136,6 +136,6 @@ Invoke-WebRequest https://<你的后端域名>/health
 
 ## 6. 生产限制与后续里程碑
 
-- 不要在 Cloudflare Workers 中直接移植当前 FastAPI/Python 代码；`python-pptx` 和本地文件/SQLite 依赖不适配 Workers 运行时。
+- 不要把当前 FastAPI/Python 服务直接当作 Workers 迁移；虽然 Workers 支持部分 FastAPI，但 `python-pptx` 和本地文件/SQLite 依赖仍需要先验证兼容性，并改造成 R2/D1 等 Cloudflare 存储绑定。
 - 不要把 `backend/data`、用户上传 PPTX 或 `.env` 提交到 GitHub。
 - 单实例后端是当前 MVP 的边界；需要高可用时，先增加对象存储、托管数据库和异步任务队列的独立里程碑。
